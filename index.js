@@ -42,13 +42,33 @@ async function run() {
       const result = await userDB.updateOne(query, updateDoc, options);
       res.json(result);
     });
+    // get user role
+    app.get("/usermail/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await userDB.findOne(query);
+      res.json(result);
+    });
+    // Get all user
+    app.get("/allusers", async (req, res) => {
+      const result = await userDB.find({}).toArray();
+      res.json(result);
+    });
+    // Delete user by id
+    app.delete("/deleteUser/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await userDB.deleteOne(query);
+      res.json(result);
+    });
 
     // Get all Products
     app.get("/allProducts", async (req, res) => {
       const result = await productDB.find({}).toArray();
       res.json(result);
     });
-
+    // get product details by id
     app.get("/productDetails/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -87,12 +107,22 @@ async function run() {
     // Product add to order list
     app.post("/checkOut", async (req, res) => {
       const body = req.body;
-
       body.createdAt = new Date();
       const result = await orderDB.insertOne(body);
-
       const query = { productID: body.productID };
       const deleteFromCart = await cartDB.deleteOne(query);
+      res.json(result);
+    });
+
+    // get order details
+    app.get("/myOrder/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await orderDB
+        .find({
+          userEmail: req.params.email,
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
       res.json(result);
     });
 
