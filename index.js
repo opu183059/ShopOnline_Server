@@ -31,6 +31,7 @@ async function run() {
     // save users and code to handle duplicate email input
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
+      console.log(email);
       const user = req.body;
       const query = { email: email };
       const options = { upsert: true };
@@ -59,6 +60,24 @@ async function run() {
       const body = req.body;
       body.createdAt = new Date();
       const result = await cartDB.insertOne(body);
+      res.json(result);
+    });
+    // get cart details
+    app.get("/myCart/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await cartDB
+        .find({
+          userEmail: req.params.email,
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
+      res.json(result);
+    });
+    // delete from cart
+    app.delete("/deleteCart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { productID: id };
+      const result = await cartDB.deleteOne(query);
       res.json(result);
     });
 
