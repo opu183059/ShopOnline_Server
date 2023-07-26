@@ -27,6 +27,7 @@ async function run() {
     const userDB = client.db("ShopOnline").collection("userDB");
     const productDB = client.db("ShopOnline").collection("productDB");
     const cartDB = client.db("ShopOnline").collection("cartDB");
+    const orderDB = client.db("ShopOnline").collection("orderDB");
 
     // save users and code to handle duplicate email input
     app.put("/users/:email", async (req, res) => {
@@ -62,6 +63,7 @@ async function run() {
       const result = await cartDB.insertOne(body);
       res.json(result);
     });
+
     // get cart details
     app.get("/myCart/:email", async (req, res) => {
       const email = req.params.email;
@@ -73,11 +75,24 @@ async function run() {
         .toArray();
       res.json(result);
     });
+
     // delete from cart
     app.delete("/deleteCart/:id", async (req, res) => {
       const id = req.params.id;
       const query = { productID: id };
       const result = await cartDB.deleteOne(query);
+      res.json(result);
+    });
+
+    // Product add to order list
+    app.post("/checkOut", async (req, res) => {
+      const body = req.body;
+
+      body.createdAt = new Date();
+      const result = await orderDB.insertOne(body);
+
+      const query = { productID: body.productID };
+      const deleteFromCart = await cartDB.deleteOne(query);
       res.json(result);
     });
 
