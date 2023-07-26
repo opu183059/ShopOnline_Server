@@ -68,11 +68,28 @@ async function run() {
       const result = await productDB.find({}).toArray();
       res.json(result);
     });
+
     // get product details by id
     app.get("/productDetails/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await productDB.findOne(query);
+      res.json(result);
+    });
+
+    // delete product details by id
+    app.delete("/productDelete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productDB.deleteOne(query);
+      res.json(result);
+    });
+
+    // Add Products
+    app.post("/addProduct", async (req, res) => {
+      const body = req.body;
+      body.createdAt = new Date();
+      const result = await productDB.insertOne(body);
       res.json(result);
     });
 
